@@ -8,7 +8,7 @@ import DownloadID from "./pages/DownloadID";
 import Footer from "./components/Footer";
 
 import AdminDashboard from "./pages/AdminDashboard";
-
+import DistrictSecretaries from "./components/DistrictSecretaries";
 
 function App() {
   return (
@@ -20,6 +20,8 @@ function App() {
         <Route path="/register" element={<Register />} />
          <Route path="/download-id" element={<DownloadID />} />
          <Route path="/admin" element={<AdminDashboard/>}/>
+        <Route path="/district-secretaries" element={<DistrictSecretaries />}
+        />
       </Routes>
    
       <Footer />
