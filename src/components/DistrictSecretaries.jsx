@@ -4,32 +4,35 @@ import "./DistrictSecretaries.css";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 const DistrictSecretaries = () => {
-  const [secretaries, setSecretaries] = useState([]);
+  const [list, setList] = useState([]);
 
   useEffect(() => {
     fetch(`${BACKEND_URL}/district-secretaries`)
       .then(res => res.json())
-      .then(data => setSecretaries(data))
-      .catch(err => {
-        console.error("API ERROR", err);
-        setSecretaries([]);
-      });
+      .then(data => setList(data));
   }, []);
 
   return (
-    <div className="party-page">
-      <div className="party-header">
-        <h1>பசுமை பாரத மக்கள் கட்சி</h1>
-        <p>மாவட்ட செயலாளர்கள்</p>
-      </div>
+    <div className="ds-page">
+      <h2 className="ds-title">மாவட்ட செயலாளர்கள்</h2>
 
-      <div className="party-grid">
-        {secretaries.map((sec, i) => (
-          <div className="party-card" key={i}>
-            <img src={sec.photo} alt={sec.name} className="party-photo" />
-            <h3>{sec.name}</h3>
-            <span>{sec.district} மாவட்டம்</span>
-            <p>{sec.position}</p>
+      <div className="ds-grid">
+        {list.map((item, i) => (
+          <div className="ds-card" key={i}>
+            
+            <div className="ds-photo">
+              <img src={`${BACKEND_URL}${item.photo}`} alt={item.name} />
+            </div>
+
+            <div className="ds-info">
+              <h3>{item.name}</h3>
+
+              <p>
+                <span className="icon">📍</span>
+                {item.district}
+              </p>
+            </div>
+
           </div>
         ))}
       </div>
