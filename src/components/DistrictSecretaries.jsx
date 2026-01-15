@@ -10,29 +10,26 @@ const DistrictSecretaries = () => {
     fetch(`${BACKEND_URL}/district-secretaries`)
       .then(res => res.json())
       .then(data => setSecretaries(data))
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error("API ERROR", err);
+        setSecretaries([]);
+      });
   }, []);
 
   return (
     <div className="party-page">
-      {/* Header */}
       <div className="party-header">
         <h1>பசுமை பாரத மக்கள் கட்சி</h1>
         <p>மாவட்ட செயலாளர்கள்</p>
       </div>
 
-      {/* Grid */}
       <div className="party-grid">
-        {secretaries.map((sec, index) => (
-          <div className="party-card" key={index}>
-            <img
-              src={sec.photo}
-              alt={sec.name}
-              className="party-photo"
-            />
+        {secretaries.map((sec, i) => (
+          <div className="party-card" key={i}>
+            <img src={sec.photo} alt={sec.name} className="party-photo" />
             <h3>{sec.name}</h3>
             <span>{sec.district} மாவட்டம்</span>
-            <p>மாவட்ட செயலாளர்</p>
+            <p>{sec.position}</p>
           </div>
         ))}
       </div>
