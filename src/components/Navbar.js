@@ -14,8 +14,8 @@ function Navbar() {
         <li><Link to="/" onClick={() => setOpen(false)}>முகப்பு</Link></li>
         <li><Link to="/district-secretaries" onClick={() => setOpen(false)}>மாவட்ட செயலாளர்கள்</Link></li>
         <li><Link to="/register" onClick={() => setOpen(false)}>உறுப்பினர் பதிவு</Link></li>
-        <li><Link to="/download-id" onClick={() => setOpen(false)}>Download ID</Link></li>
-        <li><Link to="/admin" onClick={() => setOpen(false)}>Admin</Link></li>
+        <li><Link to="/download-id" onClick={() => setOpen(false)}>அடையாள அட்டை பதிவிறக்கம்</Link></li>
+        <li><Link to="/admin" onClick={() => setOpen(false)}>நிர்வாகம்</Link></li>
 
         
       </ul>
