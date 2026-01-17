@@ -10,7 +10,7 @@ export default function AdminLogin({ setToken }) {
     formData.append("username", username);
     formData.append("password", password);
 
-    const res = await fetch("https://your-backend.onrender.com/admin/login", {
+    const res = await fetch("https://pol-bk.onrender.com/admin/login", {
       method: "POST",
       body: formData
     });
