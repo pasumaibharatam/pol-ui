@@ -1,43 +1,59 @@
+import React, { useState } from "react";
+
 const AdminLogin = ({ setToken }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
     try {
       const res = await fetch("https://pol-bk.onrender.com/admin/login", {
         method: "POST",
-        body: new URLSearchParams({ username, password }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
       });
 
       const data = await res.json();
 
-      if (res.ok) {
-        setToken(data.access_token); // ✅ sets the token in App.js state
-      } else {
-        alert(data.detail);
+      if (!res.ok) {
+        setError(data.detail || "Login failed");
+        return;
       }
+
+      setToken(data.access_token); // 👈 IMPORTANT
     } catch (err) {
-      console.error(err);
-      alert("Login failed");
+      setError("Server error");
     }
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <input
-        type="text"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Username"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-      />
-      <button type="submit">Login</button>
-    </form>
+    <div className="admin-login">
+      <h2>Admin Login</h2>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <form onSubmit={handleLogin}>
+        <input
+          placeholder="Username"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+        />
+
+        <button type="submit">Login</button>
+      </form>
+    </div>
   );
 };
+
+export default AdminLogin; // ✅ THIS LINE FIXES YOUR ERROR
