@@ -1,54 +1,54 @@
 import React, { useState } from "react";
 
-export default function AdminLogin({ onLogin }) {
+function AdminLogin({ setToken }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-
-    const formData = new FormData();
-    formData.append("username", username);
-    formData.append("password", password);
+    setLoading(true);
 
     try {
-      const res = await fetch(
-        "https://pol-bk.onrender.com/admin/login",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const res = await fetch("https://pol-bk.onrender.com/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.detail || "Login failed");
-        return;
+        throw new Error(data.detail || "Login failed");
       }
 
+      // ✅ SAVE TOKEN
       localStorage.setItem("admin_token", data.access_token);
-      onLogin(data.access_token);
-    } catch {
-      setError("Server not reachable");
+      setToken(data.access_token);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: 40 }}>
-      <h2>Admin Login</h2>
+    <div style={styles.container}>
+      <form onSubmit={handleLogin} style={styles.form}>
+        <h2>Admin Login</h2>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p style={styles.error}>{error}</p>}
 
-      <form onSubmit={handleSubmit}>
         <input
+          type="text"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
-        /><br /><br />
+          style={styles.input}
+        />
 
         <input
           type="password"
@@ -56,10 +56,49 @@ export default function AdminLogin({ onLogin }) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-        /><br /><br />
+          style={styles.input}
+        />
 
-        <button type="submit">Login</button>
+        <button type="submit" disabled={loading} style={styles.button}>
+          {loading ? "Logging in..." : "Login"}
+        </button>
       </form>
     </div>
   );
 }
+
+const styles = {
+  container: {
+    height: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    background: "#f5f5f5",
+  },
+  form: {
+    background: "#fff",
+    padding: 30,
+    borderRadius: 8,
+    width: 320,
+    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+  },
+  input: {
+    width: "100%",
+    padding: 10,
+    marginBottom: 15,
+  },
+  button: {
+    width: "100%",
+    padding: 10,
+    background: "#1B5E20",
+    color: "#fff",
+    border: "none",
+    cursor: "pointer",
+  },
+  error: {
+    color: "red",
+    marginBottom: 10,
+  },
+};
+
+export default AdminLogin;

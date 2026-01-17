@@ -24,14 +24,14 @@ ChartJS.register(
 );
 
 function AdminDashboard({ token, onLogout }) {
-  // ✅ REQUIRED STATES (THIS FIXES ALL ERRORS)
   const [candidates, setCandidates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // ✅ REQUIRED STATES (missing earlier → blank page)
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const candidatesPerPage = 10;
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!token) return;
