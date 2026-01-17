@@ -1,36 +1,43 @@
-import { useState } from "react";
-
-export default function AdminLogin({ setToken }) {
+const AdminLogin = ({ setToken }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
-  const login = async () => {
-    const formData = new FormData();
-    formData.append("username", username);
-    formData.append("password", password);
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("https://pol-bk.onrender.com/admin/login", {
+        method: "POST",
+        body: new URLSearchParams({ username, password }),
+      });
 
-    const res = await fetch("https://pol-bk.onrender.com/admin/login", {
-      method: "POST",
-      body: formData
-    });
+      const data = await res.json();
 
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.detail);
-      return;
+      if (res.ok) {
+        setToken(data.access_token); // ✅ sets the token in App.js state
+      } else {
+        alert(data.detail);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Login failed");
     }
-
-    setToken(data.access_token); // stored ONLY in memory
   };
 
   return (
-    <div>
-      <h2>Admin Login</h2>
-      <input placeholder="Username" onChange={e => setUsername(e.target.value)} />
-      <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
-      <button onClick={login}>Login</button>
-      <p style={{color:"red"}}>{error}</p>
-    </div>
+    <form onSubmit={handleLogin}>
+      <input
+        type="text"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder="Username"
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+      />
+      <button type="submit">Login</button>
+    </form>
   );
-}
+};
