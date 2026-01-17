@@ -33,7 +33,7 @@ const AdminDashboard = ({ token, onLogout }) => {
   useEffect(() => {
     if (!token) return;
 
-    fetch("https://pol-bk.onrender.com/admin", {
+    fetch("https://pol-bk.onrender.com/admin/candidates", {
       headers: {
         Authorization: `Bearer ${token}`
       }
