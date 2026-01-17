@@ -1,18 +1,20 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import Register from "./pages/Register";
 import DownloadID from "./pages/DownloadID";
-import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "./pages/AdminLogin";
 import DistrictSecretaries from "./components/DistrictSecretaries";
 import Footer from "./components/Footer";
 
 function App() {
+  // ✅ HOOKS MUST BE HERE (TOP LEVEL)
+  const [adminToken, setAdminToken] = useState(null);
+
   useEffect(() => {
-    const [adminToken, setAdminToken] = useState(null);
     const checkVersion = async () => {
       try {
         const res = await fetch("/version.json", { cache: "no-store" });
@@ -38,9 +40,11 @@ function App() {
     const interval = setInterval(checkVersion, 30000);
     return () => clearInterval(interval);
   }, []);
-   const logoutAdmin = () => {
+
+  const logoutAdmin = () => {
     setAdminToken(null);
   };
+
   return (
     <>
       <Navbar />
