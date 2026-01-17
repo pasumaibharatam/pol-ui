@@ -23,8 +23,13 @@ ChartJS.register(
   ArcElement
 );
 
- function AdminDashboard({ token, onLogout }) {
+function AdminDashboard({ token, onLogout }) {
+  // ✅ REQUIRED STATES (THIS FIXES ALL ERRORS)
   const [candidates, setCandidates] = useState([]);
+  const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const candidatesPerPage = 10;
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -53,42 +58,47 @@ ChartJS.register(
   if (loading) return <p>Loading dashboard...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
 
-  // Filter
-  const filteredCandidates = candidates.filter(c =>
+  // 🔍 FILTER
+  const filteredCandidates = candidates.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.mobile.includes(search) ||
     c.district.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Pagination
+  // 📄 PAGINATION
   const indexOfLast = currentPage * candidatesPerPage;
   const indexOfFirst = indexOfLast - candidatesPerPage;
-  const currentCandidates = filteredCandidates.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(filteredCandidates.length / candidatesPerPage);
+  const currentCandidates = filteredCandidates.slice(
+    indexOfFirst,
+    indexOfLast
+  );
+  const totalPages = Math.ceil(
+    filteredCandidates.length / candidatesPerPage
+  );
 
+  // 📊 STATS
   const stats = {
     total: candidates.length,
-    male: candidates.filter(c => c.gender === "Male").length,
-    female: candidates.filter(c => c.gender === "Female").length,
+    male: candidates.filter((c) => c.gender === "Male").length,
+    female: candidates.filter((c) => c.gender === "Female").length,
   };
 
-  // Pie
+  // 🥧 PIE
   const pieData = {
     labels: ["Male", "Female"],
     datasets: [
       {
-        label: "Gender Distribution",
         data: [stats.male, stats.female],
         backgroundColor: ["#1B5E20", "#4CAF50"],
-      }
+      },
     ],
   };
 
-  // Bar
+  // 📊 BAR
   const ageGroups = { "18-25": 0, "26-35": 0, "36-45": 0, "46+": 0 };
-  candidates.forEach(c => {
+  candidates.forEach((c) => {
     const age = c.age;
-    if (age >= 18 && age <= 25) ageGroups["18-25"]++;
+    if (age <= 25) ageGroups["18-25"]++;
     else if (age <= 35) ageGroups["26-35"]++;
     else if (age <= 45) ageGroups["36-45"]++;
     else ageGroups["46+"]++;
@@ -101,7 +111,7 @@ ChartJS.register(
         label: "Candidates by Age",
         data: Object.values(ageGroups),
         backgroundColor: "#1B5E20",
-      }
+      },
     ],
   };
 
@@ -109,97 +119,80 @@ ChartJS.register(
     <div className="dashboard-container">
       <aside className="sidebar">
         <h2>Admin</h2>
-        <nav>
-          <a href="#dashboard">Dashboard</a>
-          <a href="#candidates">Candidates</a>
-          <button className="logout-btn" onClick={onLogout}>Logout</button>
-        </nav>
+        <button onClick={onLogout}>Logout</button>
       </aside>
 
       <main className="main-content">
-        <header className="header">
-          <h1>Dashboard</h1>
-        </header>
+        <h1>Dashboard</h1>
 
-        <section className="cards">
-          <div className="card">
-            <h3>Total Candidates</h3>
-            <p>{stats.total}</p>
-          </div>
-          <div className="card">
-            <h3>Male</h3>
-            <p>{stats.male}</p>
-          </div>
-          <div className="card">
-            <h3>Female</h3>
-            <p>{stats.female}</p>
-          </div>
-        </section>
+        {/* STATS */}
+        <div className="cards">
+          <div className="card">Total: {stats.total}</div>
+          <div className="card">Male: {stats.male}</div>
+          <div className="card">Female: {stats.female}</div>
+        </div>
 
-        <section className="charts">
-          <div className="chart">
-            <h3>Gender Distribution</h3>
-            <Pie data={pieData} />
-          </div>
+        {/* CHARTS */}
+        <div className="charts">
+          <Pie data={pieData} />
+          <Bar data={barData} />
+        </div>
 
-          <div className="chart">
-            <h3>Age Distribution</h3>
-            <Bar data={barData} />
-          </div>
-        </section>
+        {/* SEARCH */}
+        <input
+          placeholder="Search name / mobile / district"
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setCurrentPage(1);
+          }}
+        />
 
-        <section id="candidates" className="table-section">
-          <h2>Registered Candidates</h2>
-
-          <input
-            type="text"
-            placeholder="Search by name, mobile, district..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="search-input"
-          />
-
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Mobile</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th>District</th>
+        {/* TABLE */}
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Mobile</th>
+              <th>Age</th>
+              <th>Gender</th>
+              <th>District</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentCandidates.map((c) => (
+              <tr key={c._id}>
+                <td>{c.name}</td>
+                <td>{c.mobile}</td>
+                <td>{c.age}</td>
+                <td>{c.gender}</td>
+                <td>{c.district}</td>
               </tr>
-            </thead>
-            <tbody>
-              {currentCandidates.map(c => (
-                <tr key={c._id}>
-                  <td>{c.name}</td>
-                  <td>{c.mobile}</td>
-                  <td>{c.age}</td>
-                  <td>{c.gender}</td>
-                  <td>{c.district}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="pagination">
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i + 1}
-                className={currentPage === i + 1 ? "active" : ""}
-                onClick={() => setCurrentPage(i + 1)}
-              >
-                {i + 1}
-              </button>
             ))}
-          </div>
-        </section>
+          </tbody>
+        </table>
+
+        {/* PAGINATION */}
+        <div>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i + 1}
+              onClick={() => setCurrentPage(i + 1)}
+              style={{
+                fontWeight: currentPage === i + 1 ? "bold" : "normal",
+              }}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
       </main>
     </div>
   );
-};
+}
 
 export default AdminDashboard;
+
 
 // import React, { useEffect, useState } from "react";
 // import { Bar, Pie } from "react-chartjs-2";
