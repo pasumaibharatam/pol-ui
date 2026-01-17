@@ -23,34 +23,35 @@ ChartJS.register(
   ArcElement
 );
 
-const AdminDashboard = ({ token, onLogout }) => {
+ function AdminDashboard({ token, onLogout }) {
   const [candidates, setCandidates] = useState([]);
-  const [search, setSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const candidatesPerPage = 10;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // 🔐 FETCH WITH AUTH TOKEN
   useEffect(() => {
     if (!token) return;
 
     fetch("https://pol-bk.onrender.com/admin/candidates", {
       headers: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     })
-      .then(res => {
-        if (res.status === 401) {
-          onLogout(); // token expired / invalid
-          return;
-        }
-        if (!res.ok) throw new Error("Failed to fetch");
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Unauthorized");
         return res.json();
       })
-      .then(data => {
-        if (data) setCandidates(data);
+      .then((data) => {
+        setCandidates(data);
+        setLoading(false);
       })
-      .catch(err => console.error(err));
-  }, [token, onLogout]);
+      .catch(() => {
+        setError("Session expired. Please login again.");
+        setLoading(false);
+      });
+  }, [token]);
+
+  if (loading) return <p>Loading dashboard...</p>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   // Filter
   const filteredCandidates = candidates.filter(c =>

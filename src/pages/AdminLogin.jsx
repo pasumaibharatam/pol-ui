@@ -1,19 +1,26 @@
 import React, { useState } from "react";
 
-const AdminLogin = ({ setToken }) => {
+export default function AdminLogin({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
+    const formData = new FormData();
+    formData.append("username", username);
+    formData.append("password", password);
 
     try {
-      const res = await fetch("https://pol-bk.onrender.com/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-      });
+      const res = await fetch(
+        "https://pol-bk.onrender.com/admin/login",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const data = await res.json();
 
@@ -22,38 +29,37 @@ const AdminLogin = ({ setToken }) => {
         return;
       }
 
-      setToken(data.access_token); // 👈 IMPORTANT
-    } catch (err) {
-      setError("Server error");
+      localStorage.setItem("admin_token", data.access_token);
+      onLogin(data.access_token);
+    } catch {
+      setError("Server not reachable");
     }
   };
 
   return (
-    <div className="admin-login">
+    <div style={{ padding: 40 }}>
       <h2>Admin Login</h2>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleSubmit}>
         <input
           placeholder="Username"
           value={username}
-          onChange={e => setUsername(e.target.value)}
+          onChange={(e) => setUsername(e.target.value)}
           required
-        />
+        /><br /><br />
 
         <input
           type="password"
           placeholder="Password"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           required
-        />
+        /><br /><br />
 
         <button type="submit">Login</button>
       </form>
     </div>
   );
-};
-
-export default AdminLogin; // ✅ THIS LINE FIXES YOUR ERROR
+}
