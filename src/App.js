@@ -5,12 +5,14 @@ import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import Register from "./pages/Register";
 import DownloadID from "./pages/DownloadID";
+import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import DistrictSecretaries from "./components/DistrictSecretaries";
 import Footer from "./components/Footer";
 
 function App() {
   useEffect(() => {
+    const [adminToken, setAdminToken] = useState(null);
     const checkVersion = async () => {
       try {
         const res = await fetch("/version.json", { cache: "no-store" });
@@ -36,7 +38,9 @@ function App() {
     const interval = setInterval(checkVersion, 30000);
     return () => clearInterval(interval);
   }, []);
-
+   const logoutAdmin = () => {
+    setAdminToken(null);
+  };
   return (
     <>
       <Navbar />
@@ -45,7 +49,19 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/download-id" element={<DownloadID />} />
-        <Route path="/admin" element={<AdminDashboard />} />
+
+        {/* 🔐 Protected Admin Route */}
+        <Route
+          path="/admin"
+          element={
+            adminToken ? (
+              <AdminDashboard token={adminToken} onLogout={logoutAdmin} />
+            ) : (
+              <AdminLogin setToken={setAdminToken} />
+            )
+          }
+        />
+
         <Route
           path="/district-secretaries"
           element={<DistrictSecretaries />}
